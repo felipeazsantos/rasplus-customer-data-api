@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/v1/auth")
 public class AuthenticationController {
 
     @Autowired
@@ -44,6 +44,20 @@ public class AuthenticationController {
     @PreAuthorize(value = "hasAnyAuthority('CLIENT_READ_WRITE', 'ADMIN_READ', 'ADMIN_WRITE')")
     public ResponseEntity<Void> updatePasswordByRecoveryCode(@RequestBody @Valid UserDetailsDto dto) {
         authenticationService.updatePasswordByRecoveryCode(dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/representations/credentials")
+    @PreAuthorize(value = "hasAnyAuthority('ADMIN_READ', 'ADMIN_WRITE')")
+    public ResponseEntity<Void> createAuthUser(@Valid @RequestBody UserRepresentationDto dto) {
+        authenticationService.createAuthUser(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/representations/credentials/{email}")
+    @PreAuthorize(value = "hasAnyAuthority('USER_READ', 'USER_WRITE', 'ADMIN_READ', 'ADMIN_WRITE')")
+    public ResponseEntity<Void> updateAuthUser(@Valid @RequestBody UserRepresentationDto dto, @PathVariable("email") String email) {
+        authenticationService.updateAuthUser(dto, email);
         return ResponseEntity.noContent().build();
     }
 }
