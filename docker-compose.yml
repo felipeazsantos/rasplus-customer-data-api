@@ -1,0 +1,55 @@
+services:
+
+  mysql:
+    image: mysql:8.3
+    container_name: mysql-rasplus
+    ports:
+      - 3310:3306
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: senha123
+      MYSQL_USER: rasmoo
+      MYSQL_PASSWORD: senha123
+    volumes:
+      - mysql_data_container:/data/db
+      - ./initdb:/docker-entrypoint-initdb.d
+    networks:
+      - keycloak_network
+    
+  redis:
+    image: redis:4
+    container_name: redis-rasplus
+    ports:
+      - "6378:6379"
+    volumes:
+      - redis_data_container:/data/redis
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:20.0.2
+    ports:
+      - 8084:8084
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin123
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://mysql-rasplus:3306/KEYCLOAK
+      KC_DB_USERNAME: rasmoo
+      KC_DB_PASSWORD: senha123
+      KC_HTTP_PORT: 8084
+    command: start-dev
+    depends_on:
+      - mysql
+    volumes:
+      - keycloak_data_container:/opt/jboss/keycloak/standalone/data
+    networks:
+      - keycloak_network
+
+networks:
+  keycloak_network:
+    driver: bridge
+
+volumes:
+  mysql_data_container:
+  redis_data_container:
+  keycloak_data_container:
