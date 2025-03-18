@@ -116,7 +116,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         LocalDateTime timeout = userRecoveryCode.getCreationDate().plusMinutes(Long.parseLong(recoveryCodeTimeout));
         LocalDateTime now = LocalDateTime.now();
 
-        return recoveryCode.equals(userRecoveryCode.getCode()) && now.isBefore(timeout);
+        if (!(recoveryCode.equals(userRecoveryCode.getCode()) && now.isBefore(timeout))) {
+            throw new BadRequestException("Token is invalid or expired");
+        }
+
+        return true;
     }
 
     @Override
