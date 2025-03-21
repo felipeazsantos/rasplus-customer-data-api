@@ -148,7 +148,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public void updateAuthUser(UserRepresentationDto userRepresentationDto, String currentEmail) {
-        try {HttpHeaders httpHeaders = getHttpHeaders();
+        try {
+            HttpHeaders httpHeaders = getHttpHeaders();
             String userId = getUserAuthId(currentEmail, httpHeaders);
             HttpEntity<UserRepresentationDto> request = new HttpEntity<>(userRepresentationDto, httpHeaders);
             httpComponent.restTemplate().put(
