@@ -12,7 +12,7 @@ services:
       MYSQL_USER: rasmoo
       MYSQL_PASSWORD: senha123
     volumes:
-      - mysql_data_container:/data/db
+      - ./data/mysql:/var/lib/mysql
       - ./initdb:/docker-entrypoint-initdb.d
     networks:
       - keycloak_network
@@ -23,7 +23,7 @@ services:
     ports:
       - "6378:6379"
     volumes:
-      - redis_data_container:/data/redis
+      - ./data/redis:/data
 
   keycloak:
     image: quay.io/keycloak/keycloak:20.0.2
@@ -41,7 +41,7 @@ services:
     depends_on:
       - mysql
     volumes:
-      - keycloak_data_container:/opt/jboss/keycloak/standalone/data
+      - ./data/keycloak:/opt/jboss/keycloak/standalone/data
     networks:
       - keycloak_network
 
@@ -55,14 +55,8 @@ services:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin123
     volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+      - ./data/rabbitmq:/var/lib/rabbitmq
 
 networks:
   keycloak_network:
     driver: bridge
-
-volumes:
-  mysql_data_container:
-  redis_data_container:
-  keycloak_data_container:
-  rabbitmq_data:
