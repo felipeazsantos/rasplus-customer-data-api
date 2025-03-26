@@ -1,6 +1,7 @@
 package dev.felipeazsantos.rasplus.api.customer.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.felipeazsantos.rasplus.api.customer.dto.LoginDto;
 import dev.felipeazsantos.rasplus.api.customer.dto.UserDetailsDto;
 import dev.felipeazsantos.rasplus.api.customer.dto.UserRepresentationDto;

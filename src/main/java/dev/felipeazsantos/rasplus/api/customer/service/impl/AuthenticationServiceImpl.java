@@ -10,6 +10,8 @@ import dev.felipeazsantos.rasplus.api.customer.exception.NotFoudException;
 import dev.felipeazsantos.rasplus.api.customer.model.redis.UserRecoveryCode;
 import dev.felipeazsantos.rasplus.api.customer.repository.redis.UserRecoveryCodeRepository;
 import dev.felipeazsantos.rasplus.api.customer.service.AuthenticationService;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -52,6 +54,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private HttpComponent httpComponent;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public String auth(LoginDto dto) {
@@ -76,7 +80,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void sendRecoveryCode(String email){
+    public void sendRecoveryCode(String email) {
 
         UserRecoveryCode userRecoveryCode;
         String code = String.format("%04d", new Random().nextInt(10000));
@@ -99,7 +103,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRecoveryCode.setCreationDate(LocalDateTime.now());
 
         userRecoveryCodeRepository.save(userRecoveryCode);
-//        mailIntegration.send(email, "Código de recuperação de conta: "+code, "Código de recuperação de conta");
+        try {
+            Message message = new Message(objectMapper.writeValueAsBytes(userRecoveryCode));
+            rabbitTemplate.send("recovery.code.email", message);
+        } catch (JsonProcessingException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
